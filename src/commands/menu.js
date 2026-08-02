@@ -13,11 +13,13 @@ We help businesses grow with creative and digital solutions.
 
 3️⃣ Branding
 
-4️⃣ Portfolio
+4️⃣ Automation
 
-5️⃣ Contact Us
+5️⃣ Portfolio
 
-━━━━━━━━━━━━━━
+6️⃣ Contact Us
+
+━━━━━━━━━━━━━
 
 Reply with the number to continue.`
     });
