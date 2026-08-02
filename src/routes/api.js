@@ -1,48 +1,88 @@
 import { Router } from "express";
+import { generatePairingCode } from "../bot/session.js";
+import { getSocket } from "../bot/connect.js";
 
 const router = Router();
 
-// Bot Status
+/*
+|--------------------------------------------------------------------------
+| GET /api/status
+|--------------------------------------------------------------------------
+*/
+
 router.get("/status", (req, res) => {
 
+    const sock = getSocket();
+
     res.json({
-        connected: false,
-        number: null
+        connected: !!sock,
+        number: sock?.user?.id || null
     });
 
 });
 
-// Generate QR
+/*
+|--------------------------------------------------------------------------
+| GET /api/qr
+|--------------------------------------------------------------------------
+*/
+
 router.get("/qr", async (req, res) => {
 
-    res.json({
-        success: true,
-        message: "QR Code will be generated here."
-    });
+    try {
 
-});
+        res.json({
+            success: true,
+            message: "QR will appear automatically when the bot starts if it is not paired."
+        });
 
-// Pair with Phone Number
-router.post("/pair", async (req, res) => {
+    } catch (err) {
 
-    const { phone } = req.body;
-
-    if (!phone) {
-
-        return res.status(400).json({
+        res.status(500).json({
             success: false,
-            message: "Phone number required"
+            message: err.message
         });
 
     }
 
-    res.json({
+});
 
-        success: true,
+/*
+|--------------------------------------------------------------------------
+| POST /api/pair
+|--------------------------------------------------------------------------
+*/
 
-        code: "ABCD-EFGH"
+router.post("/pair", async (req, res) => {
 
-    });
+    try {
+
+        const { phone } = req.body;
+
+        if (!phone) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Phone number is required."
+            });
+
+        }
+
+        const code = await generatePairingCode(phone);
+
+        res.json({
+            success: true,
+            code
+        });
+
+    } catch (err) {
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
 
 });
 
