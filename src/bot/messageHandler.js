@@ -1,5 +1,4 @@
 import { sendMainMenu } from "../commands/menu.js";
-import { addLead } from "../data/leads.js";
 
 export async function messageHandler(sock, message) {
 
@@ -116,11 +115,6 @@ Thank you for contacting us ❤️`
             break;
 
         case "yes":
-
-            addLead({
-                phone: sender,
-                service: "Interested"
-            });
 
             await sock.sendMessage(sender, {
                 text: `✅ Thank you for choosing *Urban Sync*.
