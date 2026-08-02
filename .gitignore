@@ -1,0 +1,24 @@
+# Node Modules
+node_modules/
+
+# Environment Variables
+.env
+
+# Authentication Session
+auth/
+
+# Logs
+logs/
+*.log
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Package Lock
+package-lock.json
