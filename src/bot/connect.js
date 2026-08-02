@@ -6,6 +6,7 @@ import makeWASocket, {
 
 import Pino from "pino";
 import { messageHandler } from "./messageHandler.js";
+import { setQR, clearQR } from "./qrManager.js";
 
 let sock = null;
 
@@ -27,7 +28,7 @@ export async function connectWhatsApp() {
             level: "silent"
         }),
 
-        printQRInTerminal: true
+        printQRInTerminal: false
 
     });
 
@@ -50,10 +51,15 @@ export async function connectWhatsApp() {
 
         if (qr) {
 
-            console.log("📱 Scan this QR Code using WhatsApp");
+            setQR(qr);
+
+            console.log("📱 QR Code Generated");
+
         }
 
         if (connection === "open") {
+
+            clearQR();
 
             console.log("✅ WhatsApp Connected");
             console.log("👤", sock.user);
