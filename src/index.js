@@ -11,4 +11,5 @@ app.listen(PORT, () => {
     console.log(`🚀 ${process.env.BOT_NAME} Started`);
     console.log(`🌐 Server : http://localhost:${PORT}`);
     console.log("====================================");
+    connectWhatsApp();
 });
