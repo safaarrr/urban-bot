@@ -1,0 +1,37 @@
+{
+  "name": "urban-sync-whatsapp-bot",
+  "version": "1.0.0",
+  "description": "Professional WhatsApp Bot Dashboard with QR & Pairing Code Login",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "keywords": [
+    "whatsapp",
+    "baileys",
+    "express",
+    "automation",
+    "dashboard",
+    "urban-sync"
+  ],
+  "author": "Mohammed Safar",
+  "license": "MIT",
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.18",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pino": "^9.7.0",
+    "qrcode": "^1.5.4",
+    "qrcode-terminal": "^0.12.0",
+    "socket.io": "^4.8.1",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
