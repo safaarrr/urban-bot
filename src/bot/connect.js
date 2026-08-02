@@ -24,6 +24,8 @@ export async function connectWhatsApp() {
 
         auth: state,
 
+        browser: ["Urban Sync", "Chrome", "1.0.0"],
+
         logger: Pino({
             level: "silent"
         }),
