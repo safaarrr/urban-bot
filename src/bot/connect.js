@@ -18,6 +18,8 @@ export async function connectWhatsApp() {
     const { version } =
         await fetchLatestBaileysVersion();
 
+    console.log("📦 Using Baileys Version:", version);
+
     sock = makeWASocket({
 
         version,
@@ -27,7 +29,7 @@ export async function connectWhatsApp() {
         browser: ["Urban Sync", "Chrome", "1.0.0"],
 
         logger: Pino({
-            level: "silent"
+            level: "debug"
         }),
 
         printQRInTerminal: false
@@ -35,7 +37,13 @@ export async function connectWhatsApp() {
     });
 
     // Save Session
-    sock.ev.on("creds.update", saveCreds);
+    sock.ev.on("creds.update", async () => {
+
+        await saveCreds();
+
+        console.log("💾 Session Saved");
+
+    });
 
     // Listen for Messages
     sock.ev.on("messages.upsert", async (message) => {
@@ -51,6 +59,12 @@ export async function connectWhatsApp() {
         qr
     }) => {
 
+        console.log("========== CONNECTION UPDATE ==========");
+        console.log("Connection :", connection);
+        console.log("QR Exists  :", !!qr);
+        console.log("Last Error :", lastDisconnect);
+        console.log("=======================================");
+
         if (qr) {
 
             setQR(qr);
@@ -64,7 +78,7 @@ export async function connectWhatsApp() {
             clearQR();
 
             console.log("✅ WhatsApp Connected");
-            console.log("👤", sock.user);
+            console.log("👤 User :", sock.user);
 
         }
 
@@ -74,6 +88,9 @@ export async function connectWhatsApp() {
                 lastDisconnect?.error?.output?.statusCode !==
                 DisconnectReason.loggedOut;
 
+            console.log("❌ Connection Closed");
+            console.log("Reconnect :", shouldReconnect);
+
             if (shouldReconnect) {
 
                 console.log("🔄 Reconnecting...");
@@ -82,7 +99,7 @@ export async function connectWhatsApp() {
 
             } else {
 
-                console.log("❌ Logged Out");
+                console.log("🚪 Logged Out");
 
             }
 
