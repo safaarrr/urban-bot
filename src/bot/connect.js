@@ -5,6 +5,7 @@ import makeWASocket, {
 } from "@whiskeysockets/baileys";
 
 import Pino from "pino";
+import { messageHandler } from "./messageHandler.js";
 
 let sock = null;
 
@@ -30,34 +31,56 @@ export async function connectWhatsApp() {
 
     });
 
+    // Save Session
     sock.ev.on("creds.update", saveCreds);
 
-    sock.ev.on("connection.update",
-        ({ connection, lastDisconnect }) => {
+    // Listen for Messages
+    sock.ev.on("messages.upsert", async (message) => {
 
-            if (connection === "open") {
+        await messageHandler(sock, message);
 
-                console.log("✅ WhatsApp Connected");
+    });
+
+    // Connection Events
+    sock.ev.on("connection.update", async ({
+        connection,
+        lastDisconnect,
+        qr
+    }) => {
+
+        if (qr) {
+
+            console.log("📱 Scan this QR Code using WhatsApp");
+        }
+
+        if (connection === "open") {
+
+            console.log("✅ WhatsApp Connected");
+            console.log("👤", sock.user);
+
+        }
+
+        if (connection === "close") {
+
+            const shouldReconnect =
+                lastDisconnect?.error?.output?.statusCode !==
+                DisconnectReason.loggedOut;
+
+            if (shouldReconnect) {
+
+                console.log("🔄 Reconnecting...");
+
+                connectWhatsApp();
+
+            } else {
+
+                console.log("❌ Logged Out");
 
             }
 
-            if (connection === "close") {
+        }
 
-                const shouldReconnect =
-                    lastDisconnect?.error?.output?.statusCode !==
-                    DisconnectReason.loggedOut;
-
-                if (shouldReconnect) {
-
-                    console.log("🔄 Reconnecting...");
-
-                    connectWhatsApp();
-
-                }
-
-            }
-
-        });
+    });
 
     return sock;
 
