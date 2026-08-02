@@ -1,3 +1,5 @@
+import { sendMainMenu } from "../commands/menu.js";
+
 export async function messageHandler(sock, message) {
 
     const msg = message.messages[0];
@@ -15,47 +17,30 @@ export async function messageHandler(sock, message) {
 
     const body = text.toLowerCase().trim();
 
-    console.log("Message :", body);
+    console.log("📩 Message:", body);
 
     switch (body) {
 
         case "hi":
-
         case "hello":
+        case "menu":
 
-            await sock.sendMessage(sender, {
-
-                text:
-`👋 Welcome to Urban Sync
-
-Choose a service
-
-1️⃣ Website Development
-
-2️⃣ Video Editing
-
-3️⃣ Branding
-
-4️⃣ Contact`
-
-            });
+            await sendMainMenu(sock, sender);
 
             break;
 
         case "1":
 
             await sock.sendMessage(sender, {
+                text: `🌐 *Website Development*
 
-                text:
-`🌐 Website Development
+✔ Business Website
+✔ Portfolio Website
+✔ Restaurant Website
+✔ Landing Page
+✔ E-Commerce Website
 
-✔ Business Websites
-✔ Portfolio Websites
-✔ Landing Pages
-✔ E-Commerce
-
-Reply YES to continue.`
-
+Reply *YES* if you're interested.`
             });
 
             break;
@@ -63,16 +48,14 @@ Reply YES to continue.`
         case "2":
 
             await sock.sendMessage(sender, {
+                text: `🎥 *Video Editing*
 
-                text:
-`🎥 Video Editing
-
-✔ Reels
+✔ Instagram Reels
 ✔ Commercial Ads
+✔ YouTube Videos
 ✔ Cinematic Videos
 
-Reply YES to continue.`
-
+Reply *YES* if you're interested.`
             });
 
             break;
@@ -80,14 +63,13 @@ Reply YES to continue.`
         case "3":
 
             await sock.sendMessage(sender, {
-
-                text:
-`🎨 Branding
+                text: `🎨 *Branding*
 
 ✔ Logo Design
 ✔ Brand Identity
-✔ Social Media Design`
+✔ Social Media Design
 
+Reply *YES* if you're interested.`
             });
 
             break;
@@ -95,14 +77,37 @@ Reply YES to continue.`
         case "4":
 
             await sock.sendMessage(sender, {
+                text: `📂 *Portfolio*
 
-                text:
-`📞 Urban Sync
+Our portfolio website will be available soon.`
+            });
 
-📱 +91XXXXXXXXXX
+            break;
 
-🌐 www.urbansync.in`
+        case "5":
 
+            await sock.sendMessage(sender, {
+                text: `📞 *Contact Urban Sync*
+
+📱 WhatsApp: ${process.env.OWNER_NUMBER}
+
+Thank you for contacting us ❤️`
+            });
+
+            break;
+
+        case "yes":
+
+            await sock.sendMessage(sender, {
+                text: `Thank you for choosing *Urban Sync*.
+
+Please send us:
+
+👤 Name
+🏢 Business Name
+📝 Requirements
+
+Our team will contact you shortly.`
             });
 
             break;
@@ -110,12 +115,9 @@ Reply YES to continue.`
         default:
 
             await sock.sendMessage(sender, {
+                text: `❓ Unknown command.
 
-                text:
-`❓ Unknown command.
-
-Send *Hi* to open the menu.`
-
+Send *Hi* to view the main menu.`
             });
 
     }
