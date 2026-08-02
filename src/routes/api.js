@@ -19,7 +19,7 @@ router.get("/status", (req, res) => {
 
     res.json({
 
-        connected: !!sock?.user
+        connected: !!sock?.user,
 
         number: sock?.user?.id || null
 
