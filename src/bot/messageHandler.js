@@ -77,9 +77,16 @@ Reply *YES* if you're interested.`
         case "4":
 
             await sock.sendMessage(sender, {
-                text: `📂 *Portfolio*
+                text: `🤖 *Automation Services*
 
-Our portfolio website will be available soon.`
+✔ WhatsApp Chatbots
+✔ WhatsApp Auto Replies
+✔ Lead Collection
+✔ Appointment Booking
+✔ Website Contact Automation
+✔ Business Workflow Automation
+
+Reply *YES* if you're interested.`
             });
 
             break;
@@ -87,9 +94,20 @@ Our portfolio website will be available soon.`
         case "5":
 
             await sock.sendMessage(sender, {
+                text: `📂 *Portfolio*
+
+Our portfolio website will be available soon.`
+            });
+
+            break;
+
+        case "6":
+
+            await sock.sendMessage(sender, {
                 text: `📞 *Contact Urban Sync*
 
-📱 WhatsApp: ${process.env.OWNER_NUMBER}
+👤 ${process.env.OWNER_NAME}
+📱 ${process.env.OWNER_NUMBER}
 
 Thank you for contacting us ❤️`
             });
