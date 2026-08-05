@@ -8,14 +8,34 @@ export async function generatePairingCode(phoneNumber) {
         throw new Error("WhatsApp socket is not connected.");
     }
 
-    if (sock.user) {
-        throw new Error("Bot is already connected.");
-    }
+    console.log("==================================");
+    console.log("📱 Pairing Request Started");
+    console.log("Socket User:", sock.user);
+    console.log("Socket ReadyState:", sock.ws?.readyState);
 
     const formattedPhone = phoneNumber.replace(/\D/g, "");
 
-    const code = await sock.requestPairingCode(formattedPhone);
+    console.log("Phone Number:", formattedPhone);
 
-    return code;
+    try {
+
+        console.log("🔄 Requesting Pairing Code...");
+
+        const code = await sock.requestPairingCode(formattedPhone);
+
+        console.log("✅ Pairing Code Generated:", code);
+        console.log("==================================");
+
+        return code;
+
+    } catch (err) {
+
+        console.error("❌ Pairing Error");
+        console.error(err);
+        console.log("==================================");
+
+        throw err;
+
+    }
 
 }
