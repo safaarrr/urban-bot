@@ -1,5 +1,7 @@
 import { getSocket } from "./connect.js";
 
+const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 export async function generatePairingCode(phoneNumber) {
 
     const sock = getSocket();
@@ -8,14 +10,19 @@ export async function generatePairingCode(phoneNumber) {
         throw new Error("WhatsApp socket is not connected.");
     }
 
-    console.log("==================================");
-    console.log("📱 Pairing Request Started");
-    console.log("Socket User:", sock.user);
-    console.log("Socket ReadyState:", sock.ws?.readyState);
+    if (sock.user) {
+        throw new Error("Bot is already connected.");
+    }
 
     const formattedPhone = phoneNumber.replace(/\D/g, "");
 
-    console.log("Phone Number:", formattedPhone);
+    console.log("==================================");
+    console.log("📱 Pairing Request Started");
+    console.log("Phone:", formattedPhone);
+    console.log("Waiting for socket to initialize...");
+
+    // Wait 5 seconds before requesting the pairing code
+    await wait(5000);
 
     try {
 
@@ -23,15 +30,14 @@ export async function generatePairingCode(phoneNumber) {
 
         const code = await sock.requestPairingCode(formattedPhone);
 
-        console.log("✅ Pairing Code Generated:", code);
+        console.log("✅ Pairing Code:", code);
         console.log("==================================");
 
         return code;
 
     } catch (err) {
 
-        console.error("❌ Pairing Error");
-        console.error(err);
+        console.error("❌ Pairing Error:", err);
         console.log("==================================");
 
         throw err;
