@@ -1,19 +1,16 @@
 import makeWASocket, {
     DisconnectReason,
-    useMultiFileAuthState,
     fetchLatestBaileysVersion
 } from "@whiskeysockets/baileys";
 
 import Pino from "pino";
 import { messageHandler } from "./messageHandler.js";
 import { setQR, clearQR } from "./qrManager.js";
+import { state, saveCreds } from "../config/mongoAuth.js";
 
 let sock = null;
 
 export async function connectWhatsApp() {
-
-    const { state, saveCreds } =
-        await useMultiFileAuthState("auth");
 
     const { version } =
         await fetchLatestBaileysVersion();
@@ -36,23 +33,12 @@ export async function connectWhatsApp() {
 
     });
 
-    // Save Session
-    sock.ev.on("creds.update", async () => {
+    sock.ev.on("creds.update", saveCreds);
 
-        await saveCreds();
-
-        console.log("💾 Session Saved");
-
-    });
-
-    // Listen for Messages
     sock.ev.on("messages.upsert", async (message) => {
-
         await messageHandler(sock, message);
-
     });
 
-    // Connection Events
     sock.ev.on("connection.update", async ({
         connection,
         lastDisconnect,
@@ -61,25 +47,19 @@ export async function connectWhatsApp() {
 
         console.log("========== CONNECTION UPDATE ==========");
         console.log("Connection :", connection);
-        console.log("QR Exists  :", !!qr);
+        console.log("QR Exists :", !!qr);
         console.log("Last Error :", lastDisconnect);
         console.log("=======================================");
 
         if (qr) {
-
             setQR(qr);
-
             console.log("📱 QR Code Generated");
-
         }
 
         if (connection === "open") {
-
             clearQR();
-
             console.log("✅ WhatsApp Connected");
             console.log("👤 User :", sock.user);
-
         }
 
         if (connection === "close") {
@@ -92,27 +72,18 @@ export async function connectWhatsApp() {
             console.log("Reconnect :", shouldReconnect);
 
             if (shouldReconnect) {
-
                 console.log("🔄 Reconnecting...");
-
                 connectWhatsApp();
-
             } else {
-
                 console.log("🚪 Logged Out");
-
             }
-
         }
 
     });
 
     return sock;
-
 }
 
 export function getSocket() {
-
     return sock;
-
 }
