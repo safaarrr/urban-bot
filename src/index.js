@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import { connectWhatsApp } from "./bot/connect.js";
 import app from "./app.js";
-import connectDatabase from "./config/database.js";
+import { connectDatabase } from "./config/database.js";
 
 dotenv.config();
 
