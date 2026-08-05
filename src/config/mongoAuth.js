@@ -1,18 +1,15 @@
 import { MongoClient } from "mongodb";
+import { useMongoDBAuthState } from "mongo-baileys";
 
 const client = new MongoClient(process.env.MONGODB_URI);
 
-let collection = null;
+await client.connect();
 
-export async function getAuthCollection() {
-    if (!collection) {
-        await client.connect();
+const db = client.db("urban-sync");
 
-        const db = client.db("whatsapp");
-        collection = db.collection("authState");
+const collection = db.collection("baileys_auth");
 
-        console.log("✅ Mongo Auth Ready");
-    }
+export const { state, saveCreds } =
+    await useMongoDBAuthState(collection);
 
-    return collection;
-}
+console.log("✅ MongoDB Auth Ready");
