@@ -19,7 +19,7 @@
   "author": "Mohammed Safar",
   "license": "MIT",
   "dependencies": {
-    "@whiskeysockets/baileys": "^6.7.18",
+    "@whiskeysockets/baileys": "^6.7.22",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "pino": "^9.7.0",
@@ -27,7 +27,9 @@
     "qrcode-terminal": "^0.12.0",
     "socket.io": "^4.8.1",
     "cors": "^2.8.5",
-    "mongoose": "^8.18.0"
+    "mongoose": "^8.18.0",
+    "mongodb": "^6.18.0",
+    "mongo-baileys": "^1.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
