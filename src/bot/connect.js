@@ -1,32 +1,43 @@
 import makeWASocket, {
     DisconnectReason,
+    useMultiFileAuthState,
     fetchLatestBaileysVersion
 } from "@whiskeysockets/baileys";
 
 import Pino from "pino";
 
-import { state, saveCreds } from "../config/mongoAuth.js";
 import { setQR, clearQR } from "./qrManager.js";
 import { messageHandler } from "./messageHandler.js";
 
-let sock;
+let sock = null;
 
 export async function connectWhatsApp() {
 
-    const { version } = await fetchLatestBaileysVersion();
+    const { state, saveCreds } =
+        await useMultiFileAuthState("auth");
+
+    const { version } =
+        await fetchLatestBaileysVersion();
+
+    console.log("📦 Using Baileys Version:", version);
 
     sock = makeWASocket({
         version,
         auth: state,
         printQRInTerminal: false,
         browser: ["Urban Sync", "Chrome", "1.0.0"],
-        logger: Pino({ level: "silent" })
+        logger: Pino({
+            level: "silent"
+        })
     });
 
-    sock.ev.on("creds.update", saveCreds);
+    sock.ev.on("creds.update", async () => {
+        await saveCreds();
+        console.log("💾 Session Saved");
+    });
 
-    sock.ev.on("messages.upsert", async (m) => {
-        await messageHandler(sock, m);
+    sock.ev.on("messages.upsert", async (message) => {
+        await messageHandler(sock, message);
     });
 
     sock.ev.on("connection.update", async ({
@@ -35,14 +46,21 @@ export async function connectWhatsApp() {
         lastDisconnect
     }) => {
 
+        console.log("========== CONNECTION UPDATE ==========");
+        console.log("Connection :", connection);
+        console.log("QR Exists :", !!qr);
+        console.log("Last Error :", lastDisconnect);
+        console.log("=======================================");
+
         if (qr) {
             setQR(qr);
-            console.log("✅ QR Generated");
+            console.log("📱 QR Code Generated");
         }
 
         if (connection === "open") {
             clearQR();
             console.log("✅ WhatsApp Connected");
+            console.log("👤 User :", sock.user);
         }
 
         if (connection === "close") {
@@ -51,10 +69,14 @@ export async function connectWhatsApp() {
                 lastDisconnect?.error?.output?.statusCode !==
                 DisconnectReason.loggedOut;
 
+            console.log("❌ Connection Closed");
+            console.log("Reconnect :", shouldReconnect);
+
             if (shouldReconnect) {
+                console.log("🔄 Reconnecting...");
                 connectWhatsApp();
             } else {
-                console.log("❌ Logged Out");
+                console.log("🚪 Logged Out");
             }
         }
     });
