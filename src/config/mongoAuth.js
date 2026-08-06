@@ -1,16 +1,23 @@
 import makeMongoAuthState from "mongo-baileys";
 import { MongoClient } from "mongodb";
 
-const client = new MongoClient(process.env.MONGODB_URI);
+let cached = null;
 
-await client.connect();
+export async function getMongoAuthState() {
 
-console.log("✅ MongoDB Auth Ready");
+    if (cached) return cached;
 
-const db = client.db("urban-sync");
+    const client = new MongoClient(process.env.MONGODB_URI);
+    await client.connect();
 
-const { state, saveCreds } = await makeMongoAuthState(
-    db.collection("baileys_auth")
-);
+    console.log("✅ MongoDB Auth Ready");
 
-export { state, saveCreds };
+    const db = client.db("urban-sync");
+
+    const { state, saveCreds } = await makeMongoAuthState(
+        db.collection("baileys_auth")
+    );
+
+    cached = { state, saveCreds };
+    return cached;
+}
