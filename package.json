@@ -19,7 +19,7 @@
   "author": "Mohammed Safar",
   "license": "MIT",
   "dependencies": {
-    "@whiskeysockets/baileys": "6.7.22",
+    "@whiskeysockets/baileys": "6.7.23",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "pino": "^9.7.0",
