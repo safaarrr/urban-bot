@@ -1,6 +1,5 @@
 import makeWASocket, {
     DisconnectReason,
-    useMultiFileAuthState,
     fetchLatestBaileysVersion
 } from "@whiskeysockets/baileys";
 
@@ -8,13 +7,13 @@ import Pino from "pino";
 
 import { setQR, clearQR } from "./qrManager.js";
 import { messageHandler } from "./messageHandler.js";
+import { getMongoAuthState } from "../config/mongoAuth.js";
 
 let sock = null;
 
 export async function connectWhatsApp() {
 
-    const { state, saveCreds } =
-        await useMultiFileAuthState("auth");
+    const { state, saveCreds } = await getMongoAuthState();
 
     const { version } =
         await fetchLatestBaileysVersion();
