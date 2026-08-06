@@ -1,4 +1,4 @@
-import { getSocket } from "./connect.js";
+import { getSocket, isConnected } from "./connect.js";
 
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -10,7 +10,7 @@ export async function generatePairingCode(phoneNumber) {
         throw new Error("WhatsApp socket is not connected.");
     }
 
-    if (sock.user) {
+    if (isConnected()) {
         throw new Error("Bot is already connected.");
     }
 
