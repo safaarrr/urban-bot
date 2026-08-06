@@ -2,7 +2,7 @@ import { Router } from "express";
 import QRCode from "qrcode";
 
 import { generatePairingCode } from "../bot/session.js";
-import { getSocket } from "../bot/connect.js";
+import { getSocket, isConnected } from "../bot/connect.js";
 import { getQR } from "../bot/qrManager.js";
 
 const router = Router();
@@ -16,12 +16,13 @@ const router = Router();
 router.get("/status", (req, res) => {
 
     const sock = getSocket();
+    const connected = isConnected();
 
     res.json({
 
-        connected: !!sock?.user,
+        connected,
 
-        number: sock?.user?.id || null
+        number: connected ? (sock?.user?.id || null) : null
 
     });
 
