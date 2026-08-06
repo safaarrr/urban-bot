@@ -7,9 +7,10 @@ import Pino from "pino";
 
 import { setQR, clearQR } from "./qrManager.js";
 import { messageHandler } from "./messageHandler.js";
-import { getMongoAuthState } from "../config/mongoAuth.js";
+import { getMongoAuthState, clearMongoAuthState } from "../config/mongoAuth.js";
 
 let sock = null;
+let connectionState = "close";
 
 export async function connectWhatsApp() {
 
@@ -51,6 +52,10 @@ export async function connectWhatsApp() {
         console.log("Last Error :", lastDisconnect);
         console.log("=======================================");
 
+        if (connection) {
+            connectionState = connection;
+        }
+
         if (qr) {
             setQR(qr);
             console.log("📱 QR Code Generated");
@@ -64,9 +69,8 @@ export async function connectWhatsApp() {
 
         if (connection === "close") {
 
-            const shouldReconnect =
-                lastDisconnect?.error?.output?.statusCode !==
-                DisconnectReason.loggedOut;
+            const statusCode = lastDisconnect?.error?.output?.statusCode;
+            const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
 
             console.log("❌ Connection Closed");
             console.log("Reconnect :", shouldReconnect);
@@ -75,7 +79,10 @@ export async function connectWhatsApp() {
                 console.log("🔄 Reconnecting...");
                 connectWhatsApp();
             } else {
-                console.log("🚪 Logged Out");
+                console.log("🚪 Logged Out — clearing stale session");
+                await clearMongoAuthState();
+                sock = null;
+                connectionState = "close";
             }
         }
     });
@@ -85,4 +92,8 @@ export async function connectWhatsApp() {
 
 export function getSocket() {
     return sock;
+}
+
+export function isConnected() {
+    return connectionState === "open" && !!sock?.user;
 }
