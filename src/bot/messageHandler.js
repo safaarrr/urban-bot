@@ -1,4 +1,4 @@
-import { sendMainMenu, sendMoreOptions } from "../commands/menu.js";
+import { sendMainMenu } from "../commands/menu.js";
 
 export async function messageHandler(sock, message) {
 
@@ -13,8 +13,6 @@ export async function messageHandler(sock, message) {
     const text =
         msg.message.conversation ||
         msg.message.extendedTextMessage?.text ||
-        msg.message.buttonsResponseMessage?.selectedButtonId ||
-        msg.message.templateButtonReplyMessage?.selectedId ||
         "";
 
     const body = text.toLowerCase().trim();
@@ -28,22 +26,23 @@ export async function messageHandler(sock, message) {
         case "menu":
 
             await sendMainMenu(sock, sender);
-            await sendMoreOptions(sock, sender);
 
             break;
 
         case "1":
 
             await sock.sendMessage(sender, {
-                text: `🌐 *Website Development*
+                text: `*Website Development*
 
-✔ Business Website
-✔ Portfolio Website
-✔ Restaurant Website
-✔ Landing Page
-✔ E-Commerce Website
+We design and develop modern, high-performing websites tailored to your business needs, including:
 
-Reply *YES* if you're interested.`
+• Business Websites
+• Portfolio Websites
+• Restaurant Websites
+• Landing Pages
+• E-Commerce Websites
+
+Reply *YES* to proceed, or *Menu* to return to the main menu.`
             });
 
             break;
@@ -51,14 +50,16 @@ Reply *YES* if you're interested.`
         case "2":
 
             await sock.sendMessage(sender, {
-                text: `🎥 *Video Editing*
+                text: `*Video Editing*
 
-✔ Instagram Reels
-✔ Commercial Ads
-✔ YouTube Videos
-✔ Cinematic Videos
+We create polished, professional video content designed to engage your audience, including:
 
-Reply *YES* if you're interested.`
+• Instagram Reels
+• Commercial Advertisements
+• YouTube Videos
+• Cinematic Videos
+
+Reply *YES* to proceed, or *Menu* to return to the main menu.`
             });
 
             break;
@@ -66,13 +67,15 @@ Reply *YES* if you're interested.`
         case "3":
 
             await sock.sendMessage(sender, {
-                text: `🎨 *Branding*
+                text: `*Branding*
 
-✔ Logo Design
-✔ Brand Identity
-✔ Social Media Design
+We help build a strong, consistent brand identity through:
 
-Reply *YES* if you're interested.`
+• Logo Design
+• Brand Identity Development
+• Social Media Design
+
+Reply *YES* to proceed, or *Menu* to return to the main menu.`
             });
 
             break;
@@ -80,16 +83,18 @@ Reply *YES* if you're interested.`
         case "4":
 
             await sock.sendMessage(sender, {
-                text: `🤖 *Automation Services*
+                text: `*Automation Services*
 
-✔ WhatsApp Chatbots
-✔ WhatsApp Auto Replies
-✔ Lead Collection
-✔ Appointment Booking
-✔ Website Contact Automation
-✔ Business Workflow Automation
+We streamline your business operations with tailored automation solutions, including:
 
-Reply *YES* if you're interested.`
+• WhatsApp Chatbots
+• WhatsApp Auto-Replies
+• Lead Collection Systems
+• Appointment Booking
+• Website Contact Automation
+• Business Workflow Automation
+
+Reply *YES* to proceed, or *Menu* to return to the main menu.`
             });
 
             break;
@@ -97,9 +102,11 @@ Reply *YES* if you're interested.`
         case "5":
 
             await sock.sendMessage(sender, {
-                text: `📂 *Portfolio*
+                text: `*Portfolio*
 
-Our portfolio website will be available soon.`
+Our portfolio is currently being updated and will be available shortly.
+
+Reply *Menu* to return to the main menu.`
             });
 
             break;
@@ -107,12 +114,12 @@ Our portfolio website will be available soon.`
         case "6":
 
             await sock.sendMessage(sender, {
-                text: `📞 *Contact Urban Sync*
+                text: `*Contact Urban Sync*
 
-👤 ${process.env.OWNER_NAME}
-📱 ${process.env.OWNER_NUMBER}
+Name: ${process.env.OWNER_NAME}
+Phone: ${process.env.OWNER_NUMBER}
 
-Thank you for contacting us ❤️`
+Thank you for reaching out to us. We look forward to assisting you.`
             });
 
             break;
@@ -120,16 +127,16 @@ Thank you for contacting us ❤️`
         case "yes":
 
             await sock.sendMessage(sender, {
-                text: `✅ Thank you for choosing *Urban Sync*.
+                text: `Thank you for your interest in *Urban Sync*.
 
-Please send:
+To proceed, kindly share the following details:
 
-👤 Your Name
-🏢 Business Name
-📍 Location
-📝 Your Requirements
+• Full Name
+• Business Name
+• Location
+• Requirements
 
-Our team will contact you shortly.`
+Our team will get in touch with you shortly.`
             });
 
             break;
@@ -137,9 +144,9 @@ Our team will contact you shortly.`
         default:
 
             await sock.sendMessage(sender, {
-                text: `❓ Unknown command.
+                text: `We did not recognize that response.
 
-Send *Hi* to view the main menu.`
+Please send *Hi* or *Menu* to view the main menu.`
             });
 
     }
