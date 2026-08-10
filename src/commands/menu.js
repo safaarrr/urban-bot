@@ -1,61 +1,24 @@
 export async function sendMainMenu(sock, sender) {
 
     await sock.sendMessage(sender, {
-        text: `👋 *Welcome to Urban Sync*\n\nWe help businesses grow with creative and digital solutions.\n\nChoose a service below 👇`,
-        buttons: [
-            {
-                name: "quick_reply",
-                buttonParamsJson: JSON.stringify({
-                    display_text: "🌐 Website Development",
-                    id: "1"
-                })
-            },
-            {
-                name: "quick_reply",
-                buttonParamsJson: JSON.stringify({
-                    display_text: "🎥 Video Editing",
-                    id: "2"
-                })
-            },
-            {
-                name: "quick_reply",
-                buttonParamsJson: JSON.stringify({
-                    display_text: "🎨 Branding",
-                    id: "3"
-                })
-            }
-        ]
-    });
+        text: `*Welcome to Urban Sync* 👋
 
-}
+We help businesses grow through creative and digital solutions tailored to your goals.
 
-export async function sendMoreOptions(sock, sender) {
+Please select a service from the list below by replying with the corresponding number.
 
-    await sock.sendMessage(sender, {
-        text: `More options 👇`,
-        buttons: [
-            {
-                name: "quick_reply",
-                buttonParamsJson: JSON.stringify({
-                    display_text: "🤖 Automation",
-                    id: "4"
-                })
-            },
-            {
-                name: "quick_reply",
-                buttonParamsJson: JSON.stringify({
-                    display_text: "📂 Portfolio",
-                    id: "5"
-                })
-            },
-            {
-                name: "quick_reply",
-                buttonParamsJson: JSON.stringify({
-                    display_text: "📞 Contact Us",
-                    id: "6"
-                })
-            }
-        ]
+──────────────
+
+*1.* Website Development
+*2.* Video Editing
+*3.* Branding
+*4.* Automation
+*5.* Portfolio
+*6.* Contact Us
+
+──────────────
+
+Reply with a number (1–6) to continue.`
     });
 
 }
