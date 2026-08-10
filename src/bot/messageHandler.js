@@ -1,4 +1,4 @@
-import { sendMainMenu } from "../commands/menu.js";
+import { sendMainMenu, sendMoreOptions } from "../commands/menu.js";
 
 export async function messageHandler(sock, message) {
 
@@ -13,6 +13,8 @@ export async function messageHandler(sock, message) {
     const text =
         msg.message.conversation ||
         msg.message.extendedTextMessage?.text ||
+        msg.message.buttonsResponseMessage?.selectedButtonId ||
+        msg.message.templateButtonReplyMessage?.selectedId ||
         "";
 
     const body = text.toLowerCase().trim();
@@ -26,6 +28,7 @@ export async function messageHandler(sock, message) {
         case "menu":
 
             await sendMainMenu(sock, sender);
+            await sendMoreOptions(sock, sender);
 
             break;
 
