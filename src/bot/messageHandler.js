@@ -11,31 +11,19 @@ function getPhoneFromJid(jid) {
 
 }
 
-async function isOwnerMessage(sock, msg) {
+function isOwnerMessage(msg) {
 
     const sender = msg.key.remoteJid;
     const senderAlt = msg.key.remoteJidAlt;
 
-    const senderPhone = getPhoneFromJid(sender);
-    const senderAltPhone = getPhoneFromJid(senderAlt);
+    const senderId = getPhoneFromJid(sender);
+    const senderAltId = getPhoneFromJid(senderAlt);
 
-    // Direct phone-number match (works when WhatsApp sends the classic JID)
-    if (senderPhone === process.env.OWNER_NUMBER) return true;
-    if (senderAltPhone === process.env.OWNER_NUMBER) return true;
+    if (senderId === process.env.OWNER_NUMBER) return true;
+    if (senderAltId === process.env.OWNER_NUMBER) return true;
 
-    // LID match — convert your known phone number to its LID and compare
-    try {
-
-        const ownerPnJid = `${process.env.OWNER_NUMBER}@s.whatsapp.net`;
-        const ownerLid = await sock.signalRepository.lidMapping.getLIDForPN(ownerPnJid);
-
-        if (ownerLid && sender === ownerLid) return true;
-
-    } catch (err) {
-
-        console.error("⚠️ LID lookup failed:", err.message);
-
-    }
+    if (senderId === process.env.OWNER_LID) return true;
+    if (senderAltId === process.env.OWNER_LID) return true;
 
     return false;
 
@@ -65,7 +53,7 @@ export async function messageHandler(sock, message) {
     // ── Owner-only broadcast command ──────────────────────────────
     if (bodyLower.startsWith("/broadcast")) {
 
-        const isOwner = await isOwnerMessage(sock, msg);
+        const isOwner = isOwnerMessage(msg);
 
         console.log("🔑 isOwner:", isOwner);
 
