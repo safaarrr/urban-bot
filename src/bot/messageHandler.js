@@ -7,7 +7,37 @@ function getPhoneFromJid(jid) {
 
     const [user] = jid.split("@");
 
-    return user.split(":")[0]; // strip device suffix like :0, :2
+    return user.split(":")[0];
+
+}
+
+async function isOwnerMessage(sock, msg) {
+
+    const sender = msg.key.remoteJid;
+    const senderAlt = msg.key.remoteJidAlt;
+
+    const senderPhone = getPhoneFromJid(sender);
+    const senderAltPhone = getPhoneFromJid(senderAlt);
+
+    // Direct phone-number match (works when WhatsApp sends the classic JID)
+    if (senderPhone === process.env.OWNER_NUMBER) return true;
+    if (senderAltPhone === process.env.OWNER_NUMBER) return true;
+
+    // LID match — convert your known phone number to its LID and compare
+    try {
+
+        const ownerPnJid = `${process.env.OWNER_NUMBER}@s.whatsapp.net`;
+        const ownerLid = await sock.signalRepository.lidMapping.getLIDForPN(ownerPnJid);
+
+        if (ownerLid && sender === ownerLid) return true;
+
+    } catch (err) {
+
+        console.error("⚠️ LID lookup failed:", err.message);
+
+    }
+
+    return false;
 
 }
 
@@ -35,12 +65,9 @@ export async function messageHandler(sock, message) {
     // ── Owner-only broadcast command ──────────────────────────────
     if (bodyLower.startsWith("/broadcast")) {
 
-        const senderPhone = getPhoneFromJid(sender);
-        const senderAltPhone = getPhoneFromJid(msg.key.remoteJidAlt);
+        const isOwner = await isOwnerMessage(sock, msg);
 
-        const isOwner =
-            senderPhone === process.env.OWNER_NUMBER ||
-            senderAltPhone === process.env.OWNER_NUMBER;
+        console.log("🔑 isOwner:", isOwner);
 
         if (!isOwner) {
             console.log(`⛔ Unauthorized broadcast attempt from ${sender}`);
