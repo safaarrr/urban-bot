@@ -2,7 +2,6 @@ import { downloadMediaMessage } from "@whiskeysockets/baileys";
 import { sendMainMenu } from "../commands/menu.js";
 import { optOutCustomer, broadcastToFileList } from "../utils/broadcast.js";
 
-// Tracks recently processed message IDs to prevent duplicate handling
 const processedMessageIds = new Set();
 const MAX_TRACKED_IDS = 500;
 
@@ -34,6 +33,31 @@ function isOwnerMessage(msg) {
 
 }
 
+/**
+ * Parses "/broadcast Message | Button Text | https://url.com"
+ * into { text, cta }. If no pipes are present, cta is null and
+ * the whole remainder is treated as plain text (backward compatible).
+ */
+function parseBroadcastInput(raw) {
+
+    const parts = raw.split("|").map(p => p.trim());
+
+    if (parts.length === 3 && parts[2].startsWith("http")) {
+
+        return {
+            text: parts[0],
+            cta: {
+                buttonText: parts[1],
+                url: parts[2]
+            }
+        };
+
+    }
+
+    return { text: raw.trim(), cta: null };
+
+}
+
 export async function messageHandler(sock, message) {
 
     const msg = message.messages[0];
@@ -42,7 +66,6 @@ export async function messageHandler(sock, message) {
 
     if (msg.key.fromMe) return;
 
-    // ── Deduplication guard ─────────────────────────────────────
     const msgId = msg.key.id;
 
     if (processedMessageIds.has(msgId)) {
@@ -75,7 +98,7 @@ export async function messageHandler(sock, message) {
     console.log("📩 Message:", bodyLower);
     console.log("🪪 remoteJid:", sender, "| remoteJidAlt:", msg.key.remoteJidAlt);
 
-    // ── Owner-only broadcast command (text, image, or video) ───────
+    // ── Owner-only broadcast command ────────────────────────────
     if (bodyLower.startsWith("/broadcast")) {
 
         const isOwner = isOwnerMessage(msg);
@@ -87,7 +110,7 @@ export async function messageHandler(sock, message) {
             return;
         }
 
-        const broadcastText = body.slice("/broadcast".length).trim();
+        const rawInput = body.slice("/broadcast".length).trim();
 
         let media = null;
 
@@ -119,21 +142,34 @@ export async function messageHandler(sock, message) {
 
         }
 
-        if (!broadcastText && !media) {
+        if (!rawInput && !media) {
 
             await sock.sendMessage(sender, {
-                text: `Usage: /broadcast Your message here\n\nOr attach an image/video with "/broadcast Your caption" as the caption.`
+                text: `Usage:
+
+/broadcast Your message here
+
+With a link button:
+/broadcast Your message | Button Text | https://yourlink.com
+
+Attach an image/video with either format as the caption to include media.`
             });
 
             return;
 
         }
 
+        const { text: broadcastText, cta } = parseBroadcastInput(rawInput);
+
+        if (cta) {
+            console.log(`🔗 CTA button requested — text: "${cta.buttonText}", url: ${cta.url}`);
+        }
+
         await sock.sendMessage(sender, {
             text: `📢 Broadcast started. Check Render logs for progress.`
         });
 
-        broadcastToFileList(sock, broadcastText, 10, 60, media);
+        broadcastToFileList(sock, broadcastText, 10, 60, media, cta);
 
         return;
 
