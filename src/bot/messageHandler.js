@@ -1,4 +1,5 @@
 import { sendMainMenu } from "../commands/menu.js";
+import { optOutCustomer, broadcastToFileList } from "../utils/broadcast.js";
 
 export async function messageHandler(sock, message) {
 
@@ -15,11 +16,55 @@ export async function messageHandler(sock, message) {
         msg.message.extendedTextMessage?.text ||
         "";
 
-    const body = text.toLowerCase().trim();
+    const body = text.trim();
+    const bodyLower = body.toLowerCase();
 
-    console.log("📩 Message:", body);
+    console.log("📩 Message:", bodyLower);
 
-    switch (body) {
+    // ── Owner-only broadcast command ──────────────────────────────
+    if (bodyLower.startsWith("/broadcast")) {
+
+        const ownerJid = `${process.env.OWNER_NUMBER}@s.whatsapp.net`;
+
+        if (sender !== ownerJid) {
+            console.log(`⛔ Unauthorized broadcast attempt from ${sender}`);
+            return;
+        }
+
+        const broadcastText = body.slice("/broadcast".length).trim();
+
+        if (!broadcastText) {
+
+            await sock.sendMessage(sender, {
+                text: `Usage: /broadcast Your message here`
+            });
+
+            return;
+
+        }
+
+        await sock.sendMessage(sender, {
+            text: `📢 Broadcast started. Check Render logs for progress.`
+        });
+
+        broadcastToFileList(sock, broadcastText);
+
+        return;
+
+    }
+
+    switch (bodyLower) {
+
+        case "stop":
+        case "unsubscribe":
+
+            await optOutCustomer(sender);
+
+            await sock.sendMessage(sender, {
+                text: `You have been unsubscribed from promotional messages. You will no longer receive offers or updates.`
+            });
+
+            break;
 
         case "hi":
         case "hello":
