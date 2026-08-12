@@ -43,6 +43,8 @@ export async function broadcastToFileList(
         }
     ] : undefined;
 
+    const fullText = `${messageText}\n\n_${UNSUBSCRIBE_FOOTER}_`;
+
     let sent = 0;
     let failed = 0;
 
@@ -57,9 +59,8 @@ export async function broadcastToFileList(
                 await sock.sendMessage(jid, {
                     image: media.buffer,
                     mimetype: media.mimetype,
-                    caption: messageText,
-                    footer: UNSUBSCRIBE_FOOTER,
-                    ...(buttons ? { buttons } : {})
+                    caption: fullText,
+                    ...(buttons ? { buttons, footer: UNSUBSCRIBE_FOOTER } : {})
                 });
 
             } else if (media?.type === "video") {
@@ -67,17 +68,15 @@ export async function broadcastToFileList(
                 await sock.sendMessage(jid, {
                     video: media.buffer,
                     mimetype: media.mimetype,
-                    caption: messageText,
-                    footer: UNSUBSCRIBE_FOOTER,
-                    ...(buttons ? { buttons } : {})
+                    caption: fullText,
+                    ...(buttons ? { buttons, footer: UNSUBSCRIBE_FOOTER } : {})
                 });
 
             } else {
 
                 await sock.sendMessage(jid, {
-                    text: messageText,
-                    footer: UNSUBSCRIBE_FOOTER,
-                    ...(buttons ? { buttons } : {})
+                    text: fullText,
+                    ...(buttons ? { buttons, footer: UNSUBSCRIBE_FOOTER } : {})
                 });
 
             }
