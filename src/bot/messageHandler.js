@@ -42,13 +42,20 @@ function parseBroadcastInput(raw) {
 
     const parts = raw.split("|").map(p => p.trim());
 
-    if (parts.length === 3 && parts[2].startsWith("http")) {
+    if (parts.length === 3 && parts[2].length > 0) {
+
+        let url = parts[2];
+
+        // Auto-fix common URL shorthand
+        if (!/^https?:\/\//i.test(url)) {
+            url = `https://${url}`;
+        }
 
         return {
             text: parts[0],
             cta: {
                 buttonText: parts[1],
-                url: parts[2]
+                url
             }
         };
 
