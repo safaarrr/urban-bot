@@ -89,7 +89,7 @@ export async function messageHandler(sock, message) {
         case "stop":
         case "unsubscribe":
 
-            await optOutCustomer(sender);
+            await optOutCustomer(msg);
 
             await sock.sendMessage(sender, {
                 text: `You have been unsubscribed from promotional messages. You will no longer receive offers or updates.`
