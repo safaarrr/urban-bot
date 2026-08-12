@@ -3,6 +3,16 @@ import { loadCustomerList } from "./customerList.js";
 
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+function getPhoneFromJid(jid) {
+
+    if (!jid) return null;
+
+    const [user] = jid.split("@");
+
+    return user.split(":")[0];
+
+}
+
 export async function broadcastToFileList(
     sock,
     messageText,
@@ -57,16 +67,24 @@ export async function broadcastToFileList(
 
 }
 
-export async function optOutCustomer(phone) {
+export async function optOutCustomer(msg) {
 
-    const cleanPhone = phone.replace("@s.whatsapp.net", "");
+    const sender = msg.key.remoteJid;
+    const senderAlt = msg.key.remoteJidAlt;
+
+    const phone = getPhoneFromJid(sender);
+    const altPhone = getPhoneFromJid(senderAlt);
 
     await Customer.findOneAndUpdate(
-        { phone: cleanPhone },
-        { phone: cleanPhone, optedOut: true },
+        { phone },
+        { phone, altPhone, optedOut: true },
         { upsert: true }
     );
 
-    console.log(`🚫 Customer ${cleanPhone} opted out`);
+    console.log(`🚫 Opt-out recorded — phone: ${phone}, altPhone: ${altPhone || "none"}`);
+
+    if (!altPhone) {
+        console.log(`⚠️ This opt-out came in as a LID with no phone fallback. If ${phone} doesn't match an entry in customers.json, you may need to manually check which real number this corresponds to and remove it yourself.`);
+    }
 
 }
