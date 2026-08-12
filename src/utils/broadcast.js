@@ -43,7 +43,13 @@ export async function broadcastToFileList(
         }
     ] : undefined;
 
-    const fullText = `${messageText}\n\n_${UNSUBSCRIBE_FOOTER}_`;
+    // Always bake the link into visible text as a fallback,
+    // in case the button itself doesn't render on the recipient's side
+    const bodyText = cta
+        ? `${messageText}\n\n${cta.buttonText}: ${cta.url}`
+        : messageText;
+
+    const fullText = `${bodyText}\n\n_${UNSUBSCRIBE_FOOTER}_`;
 
     let sent = 0;
     let failed = 0;
