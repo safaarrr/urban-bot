@@ -8,6 +8,11 @@ const customerSchema = new mongoose.Schema({
         unique: true
     },
 
+    altPhone: {
+        type: String,
+        default: null
+    },
+
     optedOut: {
         type: Boolean,
         default: false
