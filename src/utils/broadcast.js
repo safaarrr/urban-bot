@@ -17,7 +17,8 @@ export async function broadcastToFileList(
     sock,
     messageText,
     minDelaySeconds = 10,
-    maxDelaySeconds = 60
+    maxDelaySeconds = 60,
+    media = null
 ) {
 
     const customers = loadCustomerList();
@@ -29,6 +30,8 @@ export async function broadcastToFileList(
 
     console.log(`📢 Starting broadcast to ${targets.length} customers (${customers.length - targets.length} opted out, skipped)`);
 
+    const caption = `${messageText}\n\n_Reply STOP to unsubscribe from these updates._`;
+
     let sent = 0;
     let failed = 0;
 
@@ -38,9 +41,29 @@ export async function broadcastToFileList(
 
             const jid = `${customer.phone}@s.whatsapp.net`;
 
-            await sock.sendMessage(jid, {
-                text: `${messageText}\n\n_Reply STOP to unsubscribe from these updates._`
-            });
+            if (media?.type === "image") {
+
+                await sock.sendMessage(jid, {
+                    image: media.buffer,
+                    mimetype: media.mimetype,
+                    caption
+                });
+
+            } else if (media?.type === "video") {
+
+                await sock.sendMessage(jid, {
+                    video: media.buffer,
+                    mimetype: media.mimetype,
+                    caption
+                });
+
+            } else {
+
+                await sock.sendMessage(jid, {
+                    text: caption
+                });
+
+            }
 
             sent++;
 
