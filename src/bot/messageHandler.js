@@ -1,6 +1,16 @@
 import { sendMainMenu } from "../commands/menu.js";
 import { optOutCustomer, broadcastToFileList } from "../utils/broadcast.js";
 
+function getPhoneFromJid(jid) {
+
+    if (!jid) return null;
+
+    const [user] = jid.split("@");
+
+    return user.split(":")[0]; // strip device suffix like :0, :2
+
+}
+
 export async function messageHandler(sock, message) {
 
     const msg = message.messages[0];
@@ -20,13 +30,19 @@ export async function messageHandler(sock, message) {
     const bodyLower = body.toLowerCase();
 
     console.log("📩 Message:", bodyLower);
+    console.log("🪪 remoteJid:", sender, "| remoteJidAlt:", msg.key.remoteJidAlt);
 
     // ── Owner-only broadcast command ──────────────────────────────
     if (bodyLower.startsWith("/broadcast")) {
 
-        const ownerJid = `${process.env.OWNER_NUMBER}@s.whatsapp.net`;
+        const senderPhone = getPhoneFromJid(sender);
+        const senderAltPhone = getPhoneFromJid(msg.key.remoteJidAlt);
 
-        if (sender !== ownerJid) {
+        const isOwner =
+            senderPhone === process.env.OWNER_NUMBER ||
+            senderAltPhone === process.env.OWNER_NUMBER;
+
+        if (!isOwner) {
             console.log(`⛔ Unauthorized broadcast attempt from ${sender}`);
             return;
         }
