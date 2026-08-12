@@ -116,9 +116,13 @@ Reply *Menu* to return to the main menu.`
             await sock.sendMessage(sender, {
                 text: `*Contact Urban Sync*
 
-Name: ${process.env.OWNER_NAME}
-Phone: ${process.env.OWNER_NUMBER}
+Co-founder & Creative head
+Name: Safar
+Phone: +918075641889
 
+Co-founder & Marketing manager
+Name: Sabari Nath
+Phone: +919847799791
 Thank you for reaching out to us. We look forward to assisting you.`
             });
 
