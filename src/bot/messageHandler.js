@@ -2,6 +2,10 @@ import { downloadMediaMessage } from "@whiskeysockets/baileys";
 import { sendMainMenu } from "../commands/menu.js";
 import { optOutCustomer, broadcastToFileList } from "../utils/broadcast.js";
 
+// Tracks recently processed message IDs to prevent duplicate handling
+const processedMessageIds = new Set();
+const MAX_TRACKED_IDS = 500;
+
 function getPhoneFromJid(jid) {
 
     if (!jid) return null;
@@ -37,6 +41,21 @@ export async function messageHandler(sock, message) {
     if (!msg.message) return;
 
     if (msg.key.fromMe) return;
+
+    // ── Deduplication guard ─────────────────────────────────────
+    const msgId = msg.key.id;
+
+    if (processedMessageIds.has(msgId)) {
+        console.log(`🔁 Duplicate message event skipped: ${msgId}`);
+        return;
+    }
+
+    processedMessageIds.add(msgId);
+
+    if (processedMessageIds.size > MAX_TRACKED_IDS) {
+        const oldest = processedMessageIds.values().next().value;
+        processedMessageIds.delete(oldest);
+    }
 
     const sender = msg.key.remoteJid;
 
