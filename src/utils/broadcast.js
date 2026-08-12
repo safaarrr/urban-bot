@@ -3,6 +3,8 @@ import { loadCustomerList } from "./customerList.js";
 
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+const UNSUBSCRIBE_FOOTER = "Reply STOP to unsubscribe from these updates.";
+
 function getPhoneFromJid(jid) {
 
     if (!jid) return null;
@@ -18,7 +20,8 @@ export async function broadcastToFileList(
     messageText,
     minDelaySeconds = 10,
     maxDelaySeconds = 60,
-    media = null
+    media = null,
+    cta = null
 ) {
 
     const customers = loadCustomerList();
@@ -30,7 +33,15 @@ export async function broadcastToFileList(
 
     console.log(`📢 Starting broadcast to ${targets.length} customers (${customers.length - targets.length} opted out, skipped)`);
 
-    const caption = `${messageText}\n\n_Reply STOP to unsubscribe from these updates._`;
+    const buttons = cta ? [
+        {
+            name: "cta_url",
+            buttonParamsJson: JSON.stringify({
+                display_text: cta.buttonText,
+                url: cta.url
+            })
+        }
+    ] : undefined;
 
     let sent = 0;
     let failed = 0;
@@ -46,7 +57,9 @@ export async function broadcastToFileList(
                 await sock.sendMessage(jid, {
                     image: media.buffer,
                     mimetype: media.mimetype,
-                    caption
+                    caption: messageText,
+                    footer: UNSUBSCRIBE_FOOTER,
+                    ...(buttons ? { buttons } : {})
                 });
 
             } else if (media?.type === "video") {
@@ -54,13 +67,17 @@ export async function broadcastToFileList(
                 await sock.sendMessage(jid, {
                     video: media.buffer,
                     mimetype: media.mimetype,
-                    caption
+                    caption: messageText,
+                    footer: UNSUBSCRIBE_FOOTER,
+                    ...(buttons ? { buttons } : {})
                 });
 
             } else {
 
                 await sock.sendMessage(jid, {
-                    text: caption
+                    text: messageText,
+                    footer: UNSUBSCRIBE_FOOTER,
+                    ...(buttons ? { buttons } : {})
                 });
 
             }
