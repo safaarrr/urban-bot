@@ -1,3 +1,4 @@
+import { downloadMediaMessage } from "@whiskeysockets/baileys";
 import { sendMainMenu } from "../commands/menu.js";
 import { optOutCustomer, broadcastToFileList } from "../utils/broadcast.js";
 
@@ -39,9 +40,14 @@ export async function messageHandler(sock, message) {
 
     const sender = msg.key.remoteJid;
 
+    const imageMsg = msg.message.imageMessage;
+    const videoMsg = msg.message.videoMessage;
+
     const text =
         msg.message.conversation ||
         msg.message.extendedTextMessage?.text ||
+        imageMsg?.caption ||
+        videoMsg?.caption ||
         "";
 
     const body = text.trim();
@@ -50,7 +56,7 @@ export async function messageHandler(sock, message) {
     console.log("📩 Message:", bodyLower);
     console.log("🪪 remoteJid:", sender, "| remoteJidAlt:", msg.key.remoteJidAlt);
 
-    // ── Owner-only broadcast command ──────────────────────────────
+    // ── Owner-only broadcast command (text, image, or video) ───────
     if (bodyLower.startsWith("/broadcast")) {
 
         const isOwner = isOwnerMessage(msg);
@@ -64,10 +70,40 @@ export async function messageHandler(sock, message) {
 
         const broadcastText = body.slice("/broadcast".length).trim();
 
-        if (!broadcastText) {
+        let media = null;
+
+        if (imageMsg || videoMsg) {
+
+            try {
+
+                const buffer = await downloadMediaMessage(msg, "buffer", {});
+
+                media = {
+                    buffer,
+                    type: imageMsg ? "image" : "video",
+                    mimetype: (imageMsg || videoMsg).mimetype
+                };
+
+                console.log(`📎 Media captured: ${media.type} (${buffer.length} bytes)`);
+
+            } catch (err) {
+
+                console.error("❌ Failed to download media:", err.message);
+
+                await sock.sendMessage(sender, {
+                    text: `Failed to process the attached media. Please try again.`
+                });
+
+                return;
+
+            }
+
+        }
+
+        if (!broadcastText && !media) {
 
             await sock.sendMessage(sender, {
-                text: `Usage: /broadcast Your message here`
+                text: `Usage: /broadcast Your message here\n\nOr attach an image/video with "/broadcast Your caption" as the caption.`
             });
 
             return;
@@ -78,7 +114,7 @@ export async function messageHandler(sock, message) {
             text: `📢 Broadcast started. Check Render logs for progress.`
         });
 
-        broadcastToFileList(sock, broadcastText);
+        broadcastToFileList(sock, broadcastText, 10, 60, media);
 
         return;
 
